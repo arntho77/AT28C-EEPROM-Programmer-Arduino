@@ -34,14 +34,20 @@ def main():
     print("Connected to " + ser.name + " at " + str(ser.baudrate))
 
     addr = 0
+    addr_offset = 0
+    limit = 32768
 
     if (args.offset):
         addr = args.offset[0]
+        addr_offset = args.offset[0]
+
+    if (args.limit):
+        limit = args.limit[0]
 
     if args.read:
         print("Reading EEPROM")
 
-        for x in range(args.limit[0]):
+        for x in range(limit):
             command = "RD" + hex(addr)[2:].zfill(4).upper() + '\n'
             b = command.encode()
             ser.write(b)
@@ -60,7 +66,7 @@ def main():
 
             print("Input file size: " + str(len(contents)))
 
-            print("Limiting to first " + str(args.limit[0]) + " bytes")
+            print("Limiting to first " + str(limit) + " bytes")
 
             if args.write:
                 for b in contents:
@@ -81,14 +87,14 @@ def main():
                         exit(1)
                     else:
                         print(
-                            str(addr - args.offset[0]) + " / " + str(len(contents)))
+                            str(addr - addr_offset) + " / " + str(len(contents)))
 
-                    if args.limit[0] is not None and addr >= args.limit[0] + args.offset[0]:
+                    if args.limit[0] is not None and addr >= limit + addr_offset:
                         break
 
     elif args.clear:
         print("Wiping EEPROM")
-        for x in range(args.limit[0]):
+        for x in range(limit):
             command = "WR" + \
                 hex(addr)[2:].zfill(4).upper() + \
                 hex(255)[2:].zfill(2).upper() + '\n'
@@ -105,7 +111,7 @@ def main():
                 print("Closed " + ser.name)
                 exit(1)
             else:
-                print(str(addr - args.offset[0]) + " / " + str(args.limit[0]))
+                print(str(addr - addr_offset) + " / " + str(limit))
 
     ser.close()
     print("Closed " + ser.name)
